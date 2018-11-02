@@ -1,5 +1,5 @@
 __author__ = "tremor"
-test = "meh"
+
 import random as rand
 
 class player:
