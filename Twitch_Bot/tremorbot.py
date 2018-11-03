@@ -37,8 +37,21 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         c = self.connection
 
-        if cmd == "test123":
-            c.privmsg(self.channel, "test???")
+        if nick == "tremorbot":
+            return
+        
+        if cmd == "github":
+            c.privmsg(self.channel, "https://github.com/TremorAi/LearningPython")
+
+        elif cmd == "setproject":
+            self.project = e.arguments[0][11:]
+
+        elif cmd == "project":
+            c.privmsg(self.channel, f"{self.project}")
+        
+        # elif cmd == "poll":
+        #     self.poll == e.arguments[0][5:]
+
         else:
             c.privmsg(self.channel, f"{e.arguments} not understood!")
 
