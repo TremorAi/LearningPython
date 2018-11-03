@@ -21,10 +21,16 @@
 word1 = input("Enter the first word: ")
 word2 = input("Enter the second word: ")
 
+lenthing = len(word1)
 
-for n in word1:
-    teststring = word1.index(n)
-    print(teststring)
+for n in range(lenthing):
+    teststring = word1.replace(word1[n], "")
+    if teststring == word2:
+        print(f"{teststring} you did it!")
+        
+    else:
+        print(f"{teststring} failed")
+        
  
 
     
