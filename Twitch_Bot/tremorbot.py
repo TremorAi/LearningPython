@@ -1,26 +1,54 @@
 __author__ = "Tremor"
 
 import socket
+import irc.bot
+import config
 
-class TwitchBot:
+class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, password, channel):
         self.username = username
         self.password = password
         self.channel = channel
         
+        url = 'https://api.twitch.tv/kraken/users?login=' + channel
         host = "irc.chat.twitch.tv"
         port = 6667
+        token = config.password
+        username = config.username
+        irc.bot.SingleServerIRCBot.__init__(self ,[(host, port, 'oauth:'+token)], self.username, self.username)
 
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((host, port))
+        # self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # self.socket.connect((host, port))
     
-    def sendauth(self):
+    def on_welcome(self, c, e):
+        c.join(self.channel)
+        print(f"joining {self.channel} ...")
+        # c.privmsg(self.channel,"Hello World! i work!")
+    
+    def on_pubmsg(self, c, e):
+        if e.arguments[0][:1] == '!':
+            cmd = e.arguments[0].split(' ')[0][1:]
+            print('Received command: ' + cmd)
+            self.do_command(e, cmd)
         return
-    
-    def start(self):
-        self.sendauth()
-        data = self.socket.recv(1024)
-    
-    def joinchannel(self):
+
+
+    def do_command(self, e, cmd):
+        nick = e.source.nick
+        c = self.connection
+
+        if cmd == "test123":
+            c.privmsg(self.channel, "test???")
+        else:
+            c.privmsg(self.channel, f"{e.arguments} not understood!")
+
+def main():
+    channel = config.channel
+    username = config.username
+    password = config.password
+
+    bot = TwitchBot(username, password, channel)
+    bot.start()       
         
-        return
+if __name__ == "__main__":
+    main()
