@@ -3,6 +3,7 @@ __author__ = "Tremor"
 import socket
 import irc.bot
 import config
+import datetime
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, password, channel):
@@ -48,6 +49,11 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         elif cmd == "project":
             c.privmsg(self.channel, f"{self.project}")
+
+        elif cmd == "time":
+            c.privmsg(self.channel, str(datetime.datetime.now()))
+
+        
         
         # elif cmd == "poll":
         #     self.poll == e.arguments[0][5:]
