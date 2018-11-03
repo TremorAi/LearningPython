@@ -21,7 +21,7 @@ class Twitchbot(irc.bot.SingleServerIRCBot):
 		super().__init__(self, [{server, port, 'oauth:'+token}], username, username)
 
 	def on_pubmsg(self, c, e):
-
+, 
 		if e.arguments[0][:1] == "!":
 			cmd = e.arguments[0].split(' ')[0][1:]
 			print(f"Received command: {cmd}")

@@ -24,7 +24,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def on_welcome(self, c, e):
         c.join(self.channel)
         print(f"joining {self.channel} ...")
-        # c.privmsg(self.channel,"Hello World! i work!")
+        # c.privmsg(self.channel,"Hello World! i work!")-
     
     def on_pubmsg(self, c, e):
         if e.arguments[0][:1] == '!':
@@ -40,12 +40,14 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         if nick == "tremorbot":
             return
-        
+
+        if nick == "tremorai":
+            if cmd == "setproject":
+                self.project = e.arguments[0][11:]
+
+
         if cmd == "github":
             c.privmsg(self.channel, "https://github.com/TremorAi/LearningPython")
-
-        elif cmd == "setproject":
-            self.project = e.arguments[0][11:]
 
         elif cmd == "project":
             c.privmsg(self.channel, f"{self.project}")
@@ -59,7 +61,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         #     self.poll == e.arguments[0][5:]
 
         else:
-            c.privmsg(self.channel, f"{e.arguments} not understood!")
+            if cmd == "setproject":
+                c.privmsg(self.channel, f"{nick} this user doesnt have the permission")
+            else:
+                c.privmsg(self.channel, f"{e.arguments} not understood!")
 
 def main():
     channel = config.channel
