@@ -76,7 +76,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             elif cmd == "8ball":
                 self.sendmessage(c, random.choice(self.eightball_list))
 
-            elif stringthing != None:
+            elif stringthing is not None:
                 self.sendmessage(c, stringthing)
 
         return command
