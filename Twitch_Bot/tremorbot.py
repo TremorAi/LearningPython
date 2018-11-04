@@ -38,7 +38,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def on_welcome(self, c, e):
         c.join(self.channel)
         print(f"joining {self.channel} ...")
-        # c.privmsg(self.channel,"Hello World! i work!")-
 
     def no_permission(self, nick, cmd, c):
         c.privmsg(self.channel, f"{nick} this user doesnt have the permission to use {cmd}")
@@ -88,41 +87,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         c = self.connection
 
-        # if nick == "tremorbot":
-        #     return
-
-        # if cmd == "setproject":
-        #     if nick == "tremorai":
-        #         self.project = e.arguments[0][11:]
-        #         return
-        #     else:
-        #         return self.no_permission(nick, cmd, c)
-
         self.commands.get(cmd, self.notfound())(c, nick, e.arguments)
-
-        # if cmd == "github":
-        #     self.sendmessage(c, "https://github.com/TremorAi/LearningPython")
-
-        # elif cmd == "discord":
-        #     # return c.privmsg(self.channel, "https://discord.gg/UU3v4Ra")
-        #     self.sendmessage(c, "https://discord.gg/UU3v4Ra")
-
-        # elif cmd == "language":
-        #     # return c.privmsg(self.channel, f"The current language is python!")
-        #     self.sendmessage(c, f"The current language is python!")
-
-        # elif cmd == "project":
-        #     # return c.privmsg(self.channel, f"{self.project}")
-        #     self.sendmessage(c, f"{self.project}")
-
-        # elif cmd == "time":
-        #     self.sendmessage(c, str(datetime.datetime.now()))
-
-        # # elif cmd == "poll":
-        # #     self.poll == e.arguments[0][5:]
-
-        # else:
-        #     self.sendmessage(c, f"{e.arguments} not understood!")
 
 def main():
     channel = config.channel
