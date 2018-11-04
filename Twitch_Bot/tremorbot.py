@@ -5,6 +5,8 @@ import irc.bot
 import config
 from datetime import datetime
 from time import strftime
+import random
+import requests
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, password, channel):
@@ -16,7 +18,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         self.project = "Twitch bot"
         self.time_format = "%H:%M:%S"
         self.admins_and_mods = ["tremorai", "userman2", "tremorbot"]
-
+        self.eightball_list = [ "LUL","It is certain.","It is decidedly so.","Without a doubt.","Yes - definitely.","You may rely on it.","As I see it, yes.","Most likely.","Outlook good.","Yes.","Signs point to yes.","Reply hazy, try again.","Ask again later.","Better not tell you now.","Cannot predict now.","Concentrate and ask again.","Don't count on it.","My reply is no.","My sources say no.","Outlook not so good.","Very doubtful." ]
+        
         #command dict
         self.commands = {
             "github":self.bot_command("https://github.com/TremorAi/LearningPython", "github"),
@@ -25,7 +28,10 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             "project":self.bot_command(None, "project"),
             "setproject":self.admin_command(None, "setproject"),
             "time":self.bot_command(None, "time"),
-            "uptime":self.bot_command(strftime(self.time_format), "uptime")
+            "uptime":self.bot_command(strftime(self.time_format), "uptime"),
+            "8ball":self.bot_command(None, "8ball"),
+            
+
             }
        
        #Setup and use of variables to connect the bot
@@ -67,6 +73,9 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             elif cmd == "uptime":
                 self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - datetime.strptime(stringthing, self.time_format)))
 
+            elif cmd == "8ball":
+                self.sendmessage(c, random.choice(self.eightball_list))
+
             elif stringthing != None:
                 self.sendmessage(c, stringthing)
 
@@ -78,6 +87,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
             if nick in self.admins_and_mods:
                 if cmd == "setproject":
                     self.project = args[0][len(cmd)+1:]
+                    self.sendmessage(c, f"The project is set to: {self.project}")
                     print(self.project)
         return command
 
