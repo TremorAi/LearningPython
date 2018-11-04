@@ -3,23 +3,25 @@ __author__ = "Tremor"
 import socket
 import irc.bot
 import config
-import datetime
+from datetime import datetime
+from time import strftime
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, password, channel):
         self.username = username
         self.password = password
         self.channel = channel
-        self.project = ""
+        self.project = "Twitch bot"
+        self.time_format = "%H:%M:%S"
         self.admins_and_mods = ["tremorai", "userman2", "tremorbot"]
         self.commands = {
-            "github":self.bot_command("https://github.com/TremorAi/LearningPython"),
-            "discord":self.bot_command("https://discord.gg/UU3v4Ra"),
-            "language":self.bot_command("The current language is python!"),
-            "project":self.bot_command(f"{self.project}"),
-            "setproject":self.bot_command(None),
-            "time":self.bot_command(str(datetime.datetime.now()))
-
+            "github":self.bot_command("https://github.com/TremorAi/LearningPython", "github"),
+            "discord":self.bot_command("https://discord.gg/UU3v4Ra", "discord"),
+            "language":self.bot_command("The current language is python!", "language"),
+            "project":self.bot_command(None, "project"),
+            "setproject":self.admin_command(None, "setproject"),
+            "time":self.bot_command(None, "time"),
+            "uptime":self.bot_command(strftime(self.time_format), "uptime")
             }
         
 
@@ -40,31 +42,47 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
     def no_permission(self, nick, cmd, c):
         c.privmsg(self.channel, f"{nick} this user doesnt have the permission to use {cmd}")
-        
-    def sendmessage(self, c, saystring):
-        return c.privmsg(self.channel, saystring)
 
-    def bot_command(self, stringthing):
+    def notfound(self):
+        def command(c, _, whatever):
+            self.sendmessage(c, "command not found.")
+        return command
+           
+    def sendmessage(self, c, saystring):
+        c.privmsg(self.channel, saystring)
+
+
+    def bot_command(self, stringthing, cmd):
         def command(c, nick, args):
-            if stringthing != None:
+
+            if cmd == "project":
+                self.sendmessage(c, self.project)
+
+            elif cmd == "time":
+                self.sendmessage(c, strftime(self.time_format))
+
+            elif cmd == "uptime":
+                self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - datetime.strptime(stringthing, self.time_format)))
+
+            elif stringthing != None:
                 self.sendmessage(c, stringthing)
+
         return command
         
-    def admin_command(self, stringthing):
+    def admin_command(self, stringthing, cmd):
         def command(c, nick, args):
             if nick in self.admins_and_mods:
-                if args != None:
-                    pass
+                if cmd == "setproject":
+                    self.project = args[0][len(cmd)+1:]
+                    print(self.project)
+        return command
                 
-
-    
     def on_pubmsg(self, c, e):
         if e.arguments[0][:1] == '!':
             cmd = e.arguments[0].split(' ')[0][1:]
             print('Received command: ' + cmd)
             self.do_command(e, cmd)
         return
-
 
     def do_command(self, e, cmd):
         nick = e.source.nick
@@ -80,9 +98,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         #     else:
         #         return self.no_permission(nick, cmd, c)
 
-        self.commands.get(cmd)(c, nick, None)
-                
-
+        self.commands.get(cmd, self.notfound())(c, nick, e.arguments)
 
         # if cmd == "github":
         #     self.sendmessage(c, "https://github.com/TremorAi/LearningPython")
