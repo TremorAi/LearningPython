@@ -23,19 +23,19 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         self.coinflip = ["head", "tails", "THE SIDE WHAT"]
 
         #command dict
-        self.commands = {
-            "github":command_github,
-            "discord":command_discord,
-            "language":command_language,
-            "project":command_project,
-            "setproject":self.admin_command(None, "setproject"),
-            "time":command_time,
-            "uptime":command_uptime,
-            "8ball":command_8ball,
-            "attractive?":command_attractive,
-            "coin":command_coin,
-            "commands":command_commands,
-            }
+        # self.commands = {
+        #     "github":command_github,
+        #     "discord":command_discord,
+        #     "language":command_language,
+        #     "project":command_project,
+        #     "setproject":self.admin_command(None, "setproject"),
+        #     "time":command_time,
+        #     "uptime":command_uptime,
+        #     "8ball":command_8ball,
+        #     "attractive?":command_attractive,
+        #     "coin":command_coin,
+        #     "commands":command_commands,
+        #     }
        
        #Setup and use of variables to connect the bot
         host = "irc.chat.twitch.tv"
@@ -55,7 +55,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
     # notfound is the function ran when a command is not found inside the dict
     def notfound(self):
-        def command(c, _, whatever):
+        def command(self, c , *args):
             self.sendmessage(c, "command not found.")
         return command
 
@@ -87,7 +87,8 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         c = self.connection
 
-        self.commands.get(cmd, self.notfound())(self, c, nick, e.arguments)
+        commands = getcommands()
+        commands.get(cmd, self.notfound())(self, c, nick, e.arguments, cmd)
 
 def main():
     channel = config.channel
