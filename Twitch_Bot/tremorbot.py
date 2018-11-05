@@ -2,12 +2,14 @@ __author__ = "Tremor"
 
 import socket
 import irc.bot
+import sched, time
 import config
 from datetime import datetime
 from time import strftime
 import random
 import requests
 from commands import *
+import sqlite3
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, password, channel):
@@ -21,22 +23,12 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         self.admins_and_mods = ["tremorai", "userman2", "tremorbot"]
         self.eightball_list = [ "LUL","It is certain.","It is decidedly so.","Without a doubt.","Yes - definitely.","You may rely on it.","As I see it, yes.","Most likely.","Outlook good.","Yes.","Signs point to yes.","Reply hazy, try again.","Ask again later.","Better not tell you now.","Cannot predict now.","Concentrate and ask again.","Don't count on it.","My reply is no.","My sources say no.","Outlook not so good.","Very doubtful." ]
         self.coinflip = ["head", "tails", "THE SIDE WHAT"]
+        self.Scheduler = sched.scheduler()
 
-        #command dict
-        # self.commands = {
-        #     "github":command_github,
-        #     "discord":command_discord,
-        #     "language":command_language,
-        #     "project":command_project,
-        #     "setproject":self.admin_command(None, "setproject"),
-        #     "time":command_time,
-        #     "uptime":command_uptime,
-        #     "8ball":command_8ball,
-        #     "attractive?":command_attractive,
-        #     "coin":command_coin,
-        #     "commands":command_commands,
-        #     }
-       
+        self.conn = sqlite3.connect('main.db')
+        
+
+
        #Setup and use of variables to connect the bot
         host = "irc.chat.twitch.tv"
         port = 6667
@@ -44,11 +36,15 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         username = config.username
         irc.bot.SingleServerIRCBot.__init__(self ,[(host, port, 'oauth:'+token)], self.username, self.username)
 
+    def testthing(self, c):
+        self.sendmessage(c, "Test")
+
+
     # The on_welcome function is ran for the bot to connect to the channel that it will be chatting in
     def on_welcome(self, c, e):
         c.join(self.channel)
         print(f"joining {self.channel} ...")
-
+        
     # no_permission is simply a function to send a message to the chat if the user doesnt have permission to use a command, letting them know that they don't
     def no_permission(self, nick, cmd, c):
         c.privmsg(self.channel, f"{nick} this user doesnt have the permission to use {cmd}")
@@ -62,17 +58,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     # This function sends a message the channel with a string whenever its called        
     def sendmessage(self, c, saystring):
         c.privmsg(self.channel, saystring)
-
-
-    # admin_command is ran from the dict for admin commands, it checks to make sure the user is a admin (by using a list) than uses the instruction to do a command    
-    def admin_command(self, stringthing, cmd):
-        def command(c, nick, args):
-            if nick in self.admins_and_mods:
-                if cmd == "setproject":
-                    self.project = args[0][len(cmd)+1:]
-                    self.sendmessage(c, f"The project is set to: {self.project}")
-                    print(self.project)
-        return command
 
     # on_pubmsg checks the channel chat to see if the first letter is ! and if it is, the command is passed through do_command            
     def on_pubmsg(self, c, e):
@@ -96,7 +81,10 @@ def main():
     password = config.password
 
     bot = TwitchBot(username, password, channel)
-    bot.start()       
+    bot.start()
+    
+
+
         
 if __name__ == "__main__":
     main()

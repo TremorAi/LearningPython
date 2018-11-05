@@ -2,6 +2,10 @@ __author__ = "Tremor"
 from datetime import datetime
 from time import strftime
 import random
+import sqlite3
+from util import add_user_todb
+
+user_tbucks = {}
 
 def getcommands():
         #command dict
@@ -16,8 +20,11 @@ def getcommands():
         "8ball":command_8ball,
         "attractive?":command_attractive,
         "coin":command_coin,
-        "commands":command_commands,
+        "help":command_commands,
         "roll":command_roll,
+        "experience":command_experience,
+        "create":command_create,
+        "amount":command_ammount
         
         }
    
@@ -66,3 +73,23 @@ def command_language(self, c, nick, arguments_after_command, cmd):
 
 def command_roll(self, c, nick, arguments_after_command, cmd):
     self.sendmessage(c, f"{nick} rolled a {random.randint(1,6)}")
+
+def command_experience(self, c, nick, arguments_after_command, cmd):
+    self.sendmessage(c, "My experience before the stream, ")
+
+
+def command_ammount(self, c, nick, arguments_after_command, cmd):
+    db_c = self.conn.cursor()
+    res = tuple(db_c.execute('select 1 from users where username=?', (nick,)))
+
+    if  res:
+        tbucks = db_c.execute('select tbucks from users where username =?', (nick,)).fetchone()[0]
+        self.sendmessage(c, f"user {nick} has {tbucks}")
+
+        
+
+def command_create(self, c, nick, arguments_after_command, cmd):
+    db_c = self.conn.cursor()
+    add_user_todb(self, c, self.conn, db_c, nick)
+
+
