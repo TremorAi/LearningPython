@@ -19,19 +19,21 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         self.time_format = "%H:%M:%S"
         self.admins_and_mods = ["tremorai", "userman2", "tremorbot"]
         self.eightball_list = [ "LUL","It is certain.","It is decidedly so.","Without a doubt.","Yes - definitely.","You may rely on it.","As I see it, yes.","Most likely.","Outlook good.","Yes.","Signs point to yes.","Reply hazy, try again.","Ask again later.","Better not tell you now.","Cannot predict now.","Concentrate and ask again.","Don't count on it.","My reply is no.","My sources say no.","Outlook not so good.","Very doubtful." ]
-        
+        self.coinflip = ["head", "tails", "THE SIDE WHAT"]
+
         #command dict
         self.commands = {
-            "github":self.bot_command("https://github.com/TremorAi/LearningPython", "github"),
-            "discord":self.bot_command("https://discord.gg/UU3v4Ra", "discord"),
-            "language":self.bot_command("The current language is python!", "language"),
-            "project":self.bot_command(None, "project"),
+            "github":self.command_github,
+            "discord":self.command_discord,
+            "language":self.command_language,
+            "project":self.command_project,
             "setproject":self.admin_command(None, "setproject"),
-            "time":self.bot_command(None, "time"),
-            "uptime":self.bot_command(strftime(self.time_format), "uptime"),
-            "8ball":self.bot_command(None, "8ball"),
-            
-
+            "time":self.command_time,
+            "uptime":self.command_uptime,
+            "8ball":self.command_8ball,
+            "attractive?":self.command_attractive,
+            "coin":self.command_coin,
+            "commands":self.command_commands,
             }
        
        #Setup and use of variables to connect the bot
@@ -60,26 +62,65 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def sendmessage(self, c, saystring):
         c.privmsg(self.channel, saystring)
 
+    def command_project(self, c, nick, stringthing):
+        self.sendmessage(c, self.project)
+
+    def command_time(self, c, nick, stringthing):
+        self.sendmessage(c, strftime(self.time_format))
+
+    def command_uptime(self, c, nick, stringthing):
+        self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - datetime.strptime(stringthing, self.time_format)))
+
+    def command_8ball(self, c, nick, stringthing):
+        self.sendmessage(c, random.choice(self.eightball_list))
+    
+    def command_attractive(self, c, nick, stringthing):
+        self.sendmessage(c, f"You are a {str(random.randint(10,10))}/10")
+
+    def command_coin(self, c, nick, stringthing):
+        self.sendmessage(c, random.choice(self.coinflip))
+
+    def command_sendmsg(self, c, nick, stringthing):
+        self.sendmessage(c, stringthing)
+
+    def command_commands(self, c, nick, stringthing):
+        self.sendmessage(c, str(self.commands))
+
+    def command_github(self, c, nick, stringthing):
+        self.sendmessage(c, "https://github.com/TremorAi/LearningPython")
+
+    def command_discord(self, c, nick, stringthing):
+        self.sendmessage(c, "https://discord.gg/UU3v4Ra")
+
+    def command_language(self, c, nick, stringthing):
+        self.sendmessage(c, "The current language is python!")
+
     # bot_command is ran from the dict with instructions on what to do with the cmd 
-    def bot_command(self, stringthing, cmd):
-        def command(c, nick, args):
+    # def bot_command(self, stringthing, cmd):
+    #     def command(c, nick, args):
 
-            if cmd == "project":
-                self.sendmessage(c, self.project)
+            # if cmd == "project":
+            #     self.sendmessage(c, self.project)
 
-            elif cmd == "time":
-                self.sendmessage(c, strftime(self.time_format))
+        #     if cmd == "time":
+        #         self.sendmessage(c, strftime(self.time_format))
 
-            elif cmd == "uptime":
-                self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - datetime.strptime(stringthing, self.time_format)))
+        #     elif cmd == "uptime":
+        #         self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - datetime.strptime(stringthing, self.time_format)))
 
-            elif cmd == "8ball":
-                self.sendmessage(c, random.choice(self.eightball_list))
+        #     elif cmd == "8ball":
+        #         self.sendmessage(c, random.choice(self.eightball_list))
 
-            elif stringthing is not None:
-                self.sendmessage(c, stringthing)
+        #     elif cmd == "attractive?":
+        #         self.sendmessage(c, f"You are a {str(random.randint(10,10))}/10")
+            
+        #     elif cmd == "coin":
+        #         self.sendmessage(c, random.choice(self.coinflip))
 
-        return command
+        #     elif stringthing is not None:
+        #         self.sendmessage(c, stringthing)
+
+        # return command
 
     # admin_command is ran from the dict for admin commands, it checks to make sure the user is a admin (by using a list) than uses the instruction to do a command    
     def admin_command(self, stringthing, cmd):
