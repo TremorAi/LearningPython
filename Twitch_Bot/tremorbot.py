@@ -7,6 +7,7 @@ from datetime import datetime
 from time import strftime
 import random
 import requests
+from commands import *
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, password, channel):
@@ -23,17 +24,17 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
 
         #command dict
         self.commands = {
-            "github":self.command_github,
-            "discord":self.command_discord,
-            "language":self.command_language,
-            "project":self.command_project,
+            "github":command_github,
+            "discord":command_discord,
+            "language":command_language,
+            "project":command_project,
             "setproject":self.admin_command(None, "setproject"),
-            "time":self.command_time,
-            "uptime":self.command_uptime,
-            "8ball":self.command_8ball,
-            "attractive?":self.command_attractive,
-            "coin":self.command_coin,
-            "commands":self.command_commands,
+            "time":command_time,
+            "uptime":command_uptime,
+            "8ball":command_8ball,
+            "attractive?":command_attractive,
+            "coin":command_coin,
+            "commands":command_commands,
             }
        
        #Setup and use of variables to connect the bot
@@ -62,38 +63,41 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
     def sendmessage(self, c, saystring):
         c.privmsg(self.channel, saystring)
 
-    def command_project(self, c, nick, stringthing):
-        self.sendmessage(c, self.project)
+    # def command_project(self, c, nick, stringthing):
+    #     self.sendmessage(c, self.project)
 
-    def command_time(self, c, nick, stringthing):
-        self.sendmessage(c, strftime(self.time_format))
+    # def command_time(self, c, nick, stringthing):
+    #     self.sendmessage(c, strftime(self.time_format))
 
-    def command_uptime(self, c, nick, stringthing):
-        self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - datetime.strptime(stringthing, self.time_format)))
+    # def command_uptime(self, c, nick, stringthing):
+    #     self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - datetime.strptime(stringthing, self.time_format)))
 
-    def command_8ball(self, c, nick, stringthing):
-        self.sendmessage(c, random.choice(self.eightball_list))
+    # def command_8ball(self, c, nick, stringthing):
+    #     self.sendmessage(c, random.choice(self.eightball_list))
     
-    def command_attractive(self, c, nick, stringthing):
-        self.sendmessage(c, f"You are a {str(random.randint(10,10))}/10")
+    # def command_attractive(self, c, nick, stringthing):
+    #     self.sendmessage(c, f"You are a {str(random.randint(10,10))}/10")
 
-    def command_coin(self, c, nick, stringthing):
-        self.sendmessage(c, random.choice(self.coinflip))
+    # def command_coin(self, c, nick, stringthing):
+    #     self.sendmessage(c, random.choice(self.coinflip))
 
-    def command_sendmsg(self, c, nick, stringthing):
-        self.sendmessage(c, stringthing)
+    # def command_sendmsg(self, c, nick, stringthing):
+    #     self.sendmessage(c, stringthing)
 
-    def command_commands(self, c, nick, stringthing):
-        self.sendmessage(c, str(self.commands))
+    # def command_commands(self, c, nick, stringthing):
+    #     commandnames = ""
+    #     for key in self.commands.keys():
+    #         commandnames += f"{key}, "  
+    #     self.sendmessage(c, commandnames[:-2])
 
-    def command_github(self, c, nick, stringthing):
-        self.sendmessage(c, "https://github.com/TremorAi/LearningPython")
+    # def command_github(self, c, nick, stringthing):
+    #     self.sendmessage(c, "https://github.com/TremorAi/LearningPython")
 
-    def command_discord(self, c, nick, stringthing):
-        self.sendmessage(c, "https://discord.gg/UU3v4Ra")
+    # def command_discord(self, c, nick, stringthing):
+    #     self.sendmessage(c, "https://discord.gg/UU3v4Ra")
 
-    def command_language(self, c, nick, stringthing):
-        self.sendmessage(c, "The current language is python!")
+    # def command_language(self, c, nick, stringthing):
+    #     self.sendmessage(c, "The current language is python!")
 
     # bot_command is ran from the dict with instructions on what to do with the cmd 
     # def bot_command(self, stringthing, cmd):
@@ -145,7 +149,7 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         c = self.connection
 
-        self.commands.get(cmd, self.notfound())(c, nick, e.arguments)
+        self.commands.get(cmd, self.notfound())(self, c, nick, e.arguments)
 
 def main():
     channel = config.channel
