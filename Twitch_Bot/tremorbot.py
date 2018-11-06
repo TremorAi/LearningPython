@@ -2,7 +2,7 @@ __author__ = "Tremor"
 
 import socket
 import irc.bot
-import sched, time
+from apscheduler.schedulers.background import BackgroundScheduler
 import config
 from datetime import datetime
 from time import strftime
@@ -10,6 +10,7 @@ import random
 import requests
 from commands import *
 import sqlite3
+from util import tbucks_scheduler
 
 class TwitchBot(irc.bot.SingleServerIRCBot):
     def __init__(self, username, password, channel):
@@ -23,7 +24,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         self.admins_and_mods = ["tremorai", "userman2", "tremorbot"]
         self.eightball_list = [ "LUL","It is certain.","It is decidedly so.","Without a doubt.","Yes - definitely.","You may rely on it.","As I see it, yes.","Most likely.","Outlook good.","Yes.","Signs point to yes.","Reply hazy, try again.","Ask again later.","Better not tell you now.","Cannot predict now.","Concentrate and ask again.","Don't count on it.","My reply is no.","My sources say no.","Outlook not so good.","Very doubtful." ]
         self.coinflip = ["head", "tails", "THE SIDE WHAT"]
-        self.Scheduler = sched.scheduler()
 
         self.conn = sqlite3.connect('main.db')
         
@@ -35,10 +35,6 @@ class TwitchBot(irc.bot.SingleServerIRCBot):
         token = config.password
         username = config.username
         irc.bot.SingleServerIRCBot.__init__(self ,[(host, port, 'oauth:'+token)], self.username, self.username)
-
-    def testthing(self, c):
-        self.sendmessage(c, "Test")
-
 
     # The on_welcome function is ran for the bot to connect to the channel that it will be chatting in
     def on_welcome(self, c, e):
@@ -80,6 +76,9 @@ def main():
     username = config.username
     password = config.password
 
+    sched = BackgroundScheduler()
+    sched.start()
+    sched.add_job(tbucks_scheduler,'interval', seconds=3)
     bot = TwitchBot(username, password, channel)
     bot.start()
     

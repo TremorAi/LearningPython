@@ -3,9 +3,7 @@ from datetime import datetime
 from time import strftime
 import random
 import sqlite3
-from util import add_user_todb
-
-user_tbucks = {}
+from util import add_user_todb, user_in_db
 
 def getcommands():
         #command dict
@@ -16,7 +14,6 @@ def getcommands():
         "project":command_project,
         "setproject":command_setproject,
         "time":command_time,
-        "uptime":command_uptime,
         "8ball":command_8ball,
         "attractive?":command_attractive,
         "coin":command_coin,
@@ -24,7 +21,9 @@ def getcommands():
         "roll":command_roll,
         "experience":command_experience,
         "create":command_create,
-        "amount":command_ammount
+        "amount":command_ammount,
+        "nerfjim":command_nerfjim,
+        "poll":command_poll,
         
         }
    
@@ -41,7 +40,7 @@ def command_time(self, c, nick, arguments_after_command, cmd):
     self.sendmessage(c, strftime(self.time_format))
 
 def command_uptime(self, c, nick, arguments_after_command, cmd):
-    self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - datetime.strptime(arguments_after_command, self.time_format)))
+    self.sendmessage(c, str(datetime.strptime(strftime(self.time_format), self.time_format) - str(datetime.strptime(arguments_after_command, self.time_format))))
 
 def command_8ball(self, c, nick, arguments_after_command, cmd):
     self.sendmessage(c, random.choice(self.eightball_list))
@@ -77,19 +76,25 @@ def command_roll(self, c, nick, arguments_after_command, cmd):
 def command_experience(self, c, nick, arguments_after_command, cmd):
     self.sendmessage(c, "My experience before the stream, ")
 
+def command_poll():
+        """poll will have create/stop/vote/status as the first args
+        create pollname|choice1|choice2|choice3
+        vote choice1|choice2|choice3
+        """
+
+def command_nerfjim():
+        return 
 
 def command_ammount(self, c, nick, arguments_after_command, cmd):
     db_c = self.conn.cursor()
-    res = tuple(db_c.execute('select 1 from users where username=?', (nick,)))
+    res = user_in_db(db_c, nick)
 
     if  res:
         tbucks = db_c.execute('select tbucks from users where username =?', (nick,)).fetchone()[0]
-        self.sendmessage(c, f"user {nick} has {tbucks}")
-
-        
+        self.sendmessage(c, f"{nick} has {tbucks} tbucks")
 
 def command_create(self, c, nick, arguments_after_command, cmd):
     db_c = self.conn.cursor()
-    add_user_todb(self, c, self.conn, db_c, nick)
+    add_user_todb(self.conn, db_c, nick)
 
 
