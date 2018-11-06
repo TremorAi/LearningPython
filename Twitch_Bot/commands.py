@@ -27,7 +27,6 @@ def getcommands():
         
         }
    
-
 def command_setproject(self, c, nick, arguments_after_command, cmd):
     if nick in self.admins_and_mods:
         self.project = arguments_after_command[0][len(cmd)+1:]
