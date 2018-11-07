@@ -4,6 +4,7 @@ import asyncio
 import config
 from messages import Message
 from fun_commands import *
+from database import tbucks_update_loop
 
 
 class AsyncTwitchBot:
@@ -11,6 +12,8 @@ class AsyncTwitchBot:
         self.reader = reader
         self.writer = writer
         self.channel = channel
+
+        
 
     def send_raw(self, message):
         self.writer.write(f"{message}\r\n".encode())
@@ -45,6 +48,7 @@ async def main():
     reader, writer = await asyncio.open_connection(host, port)
     channel = "#tremorai"
     bot = AsyncTwitchBot(reader, writer, channel)
+    asyncio.ensure_future(tbucks_update_loop())
     await bot.run()
     
     

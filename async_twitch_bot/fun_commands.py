@@ -1,6 +1,7 @@
 __author__ = "Tremor"
 from register import *
 import random
+from database import db
 
 
 coin = ["Heads", "Tails", "The side"]
@@ -52,8 +53,9 @@ async def command_project(bot, msg):
 async def command_github(bot, msg):
     bot.send_message("https://github.com/TremorAi/LearningPython")
 
-# def command_discord(self, c, nick, arguments_after_command, cmd):
-#     self.sendmessage(c, "https://discord.gg/UU3v4Ra")
+@register("discord", False)
+async def command_discord(bot, msg):
+    bot.send_message("https://discord.gg/UU3v4Ra")
 
 # def command_language(self, c, nick, arguments_after_command, cmd):
 #     self.sendmessage(c, "The current language is python!")
@@ -80,8 +82,8 @@ async def command_github(bot, msg):
 #     if  res:
 #         tbucks = db_c.execute('select tbucks from users where username =?', (nick,)).fetchone()[0]
 #         self.sendmessage(c, f"{nick} has {tbucks} tbucks")
-
-# def command_create(self, c, nick, arguments_after_command, cmd):
-#     db_c = self.conn.cursor()
-#     add_user_todb(self.conn, db_c, nick)
+@register("create", False)
+async def command_create(bot, msg):
+    if msg.user not in db:
+        db.add_user(msg.user)
 
