@@ -5,6 +5,7 @@ import config
 from messages import Message
 from fun_commands import *
 
+
 class AsyncTwitchBot:
     def __init__(self, reader, writer, channel):
         self.reader = reader
@@ -28,8 +29,13 @@ class AsyncTwitchBot:
         self.send_auth(config.username, config.password, config.channel)
         self.send_message(f"test test")
         while True:
+            # if Message == True:
+            #     pass
             line = (await self.reader.readline()).decode().strip()
             msg = Message(line)
+            if msg.iscommand:
+                asyncio.ensure_future(commands.get(msg.command, notfound).func(self, msg))
+
             if 'PING' in line:
                 self.send_raw('PONG :tmi.twitch.tv')
         
@@ -42,6 +48,5 @@ async def main():
     await bot.run()
     
     
-
 if __name__ == "__main__":
     asyncio.run(main())

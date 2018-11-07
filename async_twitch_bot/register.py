@@ -15,3 +15,7 @@ def register(name, mod_only):
         return command
     return inner
 
+async def command_notfound(bot, _): 
+    bot.send_message('Command not found!')
+
+notfound = Command(None, False,  command_notfound)
