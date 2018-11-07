@@ -3,6 +3,7 @@ __author__ = "Tremor"
 import asyncio
 import config
 from messages import Message
+from fun_commands import *
 
 class AsyncTwitchBot:
     def __init__(self, reader, writer, channel):

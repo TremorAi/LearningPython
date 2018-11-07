@@ -1,4 +1,5 @@
 __author__ = "tremor"
+from fun_commands import *
 
 class Message:
     def __init__(self, message):
