@@ -48,8 +48,9 @@ async def command_project(bot, msg):
 #         commandnames += f"{key}, "  
 #     self.sendmessage(c, commandnames[:-2])
 
-# def command_github(self, c, nick, arguments_after_command, cmd):
-#     self.sendmessage(c, "https://github.com/TremorAi/LearningPython")
+@register("github", False)
+async def command_github(bot, msg):
+    bot.send_message("https://github.com/TremorAi/LearningPython")
 
 # def command_discord(self, c, nick, arguments_after_command, cmd):
 #     self.sendmessage(c, "https://discord.gg/UU3v4Ra")

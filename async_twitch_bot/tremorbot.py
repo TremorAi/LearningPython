@@ -27,7 +27,7 @@ class AsyncTwitchBot:
 
     async def run(self):
         self.send_auth(config.username, config.password, config.channel)
-        self.send_message(f"test test")
+        self.send_message(f"I have joined muahahahaa")
         while True:
             # if Message == True:
             #     pass
