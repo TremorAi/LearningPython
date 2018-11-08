@@ -29,4 +29,4 @@ choice = [nlp_db.add_noun, nlp_db.add_verb, nlp_db.add_adjective]
 name_choice = ["noun", "verb", "adjective"]
 
 nlp = Natural_language_processing()        
-print(nlp.respond_to("cats eat mice test"))
+# print(nlp.respond_to("cats eat mice test"))

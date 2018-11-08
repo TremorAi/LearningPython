@@ -37,8 +37,10 @@ class AsyncTwitchBot:
 
             if msg.iscommand and msg.command in commands:
                 asyncio.ensure_future(commands[msg.command].func(self, msg))
+
             elif db.command_exists(msg.command):
                 self.send_message(db.get_command(msg.command))
+                
             elif msg.iscommand:
                 self.send_message(f"{msg.command} is not a valid command.")
                 
