@@ -13,8 +13,6 @@ class AsyncTwitchBot:
         self.writer = writer
         self.channel = channel
 
-        
-
     def send_raw(self, message):
         self.writer.write(f"{message}\r\n".encode())
         
@@ -30,7 +28,7 @@ class AsyncTwitchBot:
 
     async def run(self):
         self.send_auth(config.username, config.password, config.channel)
-        self.send_message(f"I have joined muahahahaa")
+        # self.send_message(f"I have joined muahahahaa")
         while True:
             # if Message == True:
             #     pass

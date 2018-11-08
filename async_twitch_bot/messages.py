@@ -9,8 +9,7 @@ class Message:
         self.command = None
         self.args = []
         self.message_parser(message)
-        
-        
+               
 
     def message_parser(self, message):
         new_message = message[1:]
