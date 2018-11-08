@@ -34,6 +34,7 @@ class AsyncTwitchBot:
             #     pass
             line = (await self.reader.readline()).decode().strip()
             msg = Message(line)
+
             if msg.iscommand and msg.command in commands:
                 asyncio.ensure_future(commands[msg.command].func(self, msg))
             elif db.command_exists(msg.command):
@@ -41,7 +42,6 @@ class AsyncTwitchBot:
             elif msg.iscommand:
                 self.send_message(f"{msg.command} is not a valid command.")
                 
-
             if 'PING' in line:
                 self.send_raw('PONG :tmi.twitch.tv')
         

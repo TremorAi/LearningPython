@@ -4,7 +4,7 @@ import asyncio
 
 class Database:
     def __init__(self):
-        self.conn = sqlite3.connect('async_twitch_bot/users.db')
+        self.conn = sqlite3.connect(r'D:\Python\twitch projects\learn_programming\async_twitch_bot\users.db')
         cursor = self.conn.cursor()
 
         cursor.execute('''CREATE TABLE if not exists users

@@ -1,32 +1,32 @@
 __author__ = "Tremor"
+import sqlite3
+from nlp_database import nlp_db
 
 import random
 
 class Natural_language_processing:
-    def __init__(self, nouns, verbs, adjectives):
-        self.nouns = nouns
-        self.verbs = verbs
-        self.adjectives = adjectives
+    def __init__(self):
+        pass    
 
     def respond_to(self, input):
         test = input.split()
+        response = ""
         for i in test:
-            if i in noun:
-                print("noun")
-            elif i in verb:
-                print("verb")
+            if nlp_db.exists_noun(i):
+                response += "noun" + " "
+            elif nlp_db.exists_verb(i):
+                response += "verb" + " "
+            elif nlp_db.exists_adjective(i):
+                response += "adjective" + " "
             else:
                 random_index = random.randrange(len(choice))
-                choice[random_index].append(i)
-                print(f"{name_choice[random_index]}?")
+                choice[random_index](i)
+                response += name_choice[random_index] + "?" + " "
+        return response
 
-noun = ["cats", "mice"]
-verb = ["eat"]
-adjective = []
-choice = [noun, verb, adjective]
+
+choice = [nlp_db.add_noun, nlp_db.add_verb, nlp_db.add_adjective]
 name_choice = ["noun", "verb", "adjective"]
 
-nlp = Natural_language_processing(noun, verb, adjective)        
-nlp.respond_to("cats eat mice test")
-print("")
-nlp.respond_to("cats eat mice test")      
+nlp = Natural_language_processing()        
+print(nlp.respond_to("cats eat mice test"))
