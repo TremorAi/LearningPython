@@ -47,6 +47,10 @@ class Database:
         self.conn.commit()
         cursor.close()
 
+    def get_command(self, cmd):
+        cursor = self.conn.cursor()
+        return cursor.execute('select results from commands where cmd =?', (cmd,)).fetchone()[0]
+
     def command_exists(self, cmd):
         cursor = self.conn.cursor()
         return bool(cursor.execute('SELECT EXISTS(SELECT 1 FROM commands WHERE cmd = ? LIMIT 1)', (cmd,)).fetchone()[0])
