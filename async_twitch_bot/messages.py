@@ -38,7 +38,7 @@ class Message:
             # message_command(self)
 
         elif message not in self.forbidden:
-            nlp.respond_to(self.body)
+            print(nlp.respond_to(self.body))
             
         # print(self.user)
         

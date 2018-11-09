@@ -2,6 +2,7 @@ __author__ = "Tremor"
 from register import *
 import random
 from database import db
+from nlp import nlp
 
 
 coin = ["Heads", "Tails", "The side"]
@@ -110,3 +111,8 @@ async def command_delcmd(bot, msg):
         bot.send_message(f"{msg.args[0]} does not exist try adding it using !addcmd args")
 
 
+@register("ask", False, "")
+async def command_ask(bot,msg):
+    question = ' '.join(msg.args)
+    bot.send_message(f"{nlp.respond_to(question)}")
+    
