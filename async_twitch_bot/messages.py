@@ -22,8 +22,6 @@ class Message:
 ":tremorbot.tmi.twitch.tv 366 tremorbot #tremorai :End of /NAMES list"]
         self.message_parser(message)
         
-               
-
     def message_parser(self, message):
         new_message = message[1:]
         new_message = new_message.split("!")[0]
@@ -38,7 +36,7 @@ class Message:
             # message_command(self)
 
         elif message not in self.forbidden:
-            print(nlp.respond_to(self.body))
+            nlp.respond_to(self.body)
             
         # print(self.user)
         
