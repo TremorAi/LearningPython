@@ -17,6 +17,9 @@ class Database:
         cursor.execute('''CREATE TABLE if not exists commands
         (cmd text, results text)''')
         self.conn.commit()
+        cursor.execute('''CREATE TABLE if not exists boss
+        (name text, health integer)''')
+        self.conn.commit()
         cursor.close()
     
     def add_user(self, name, amt=0, weapon="wood sword", damage=10, damagedealt=0):
@@ -49,6 +52,18 @@ class Database:
         self.conn.commit()
         cursor.close()
 
+    def add_damage_dealt(self, name, dmg):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET damagedealt = damagedealt + ? WHERE username =? ", (dmg, name))
+        self.conn.commit()
+        cursor.close()
+
+    def reset_damage_dealt(self, name, dmg):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET damagedealt = ? WHERE username =? ", (dmg, name))
+        self.conn.commit()
+        cursor.close()
+
     def subtract_tbucks(self, name, amount):
         cursor = self.conn.cursor()
         cursor.execute("UPDATE users SET tbucks = tbucks - ? WHERE username = ?",(amount, name))
@@ -58,6 +73,10 @@ class Database:
     def get_weapon_cost(self, name):
         cursor = self.conn.cursor()
         return cursor.execute('select cost from weapons where name =?', (name,)).fetchone()[0]
+
+    def get_user_weapon_damage(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select damage from users where username =?', (name,)).fetchone()[0]
         
     def check_balance(self, name):
         cursor = self.conn.cursor()
@@ -97,6 +116,28 @@ class Database:
 
     def command_name(self, name):
         pass
+
+    #boss fight stuff
+    def get_boss_hp(self):
+        cursor = self.conn.cursor()
+        return cursor.execute('select health from boss where name=?', ("jim",)).fetchone()[0]
+    
+    def set_boss_health(self, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE boss SET health = ? WHERE name = ?",(amount, "jim"))
+    
+    def subtract_boss_health(self, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE boss SET health = health - ? WHERE name = ?",(amount, "jim"))
+
+    def get_all_users(self):
+        cursor = self.conn.cursor()
+        return cursor.execute("select username from users").fetchall()
+    
+    def get_damage_dealt(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select damagedealt from users where username =?', (name,)).fetchone()[0]
+
 
 async def tbucks_update_loop():
     while True:

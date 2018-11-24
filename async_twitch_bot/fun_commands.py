@@ -84,7 +84,7 @@ async def command_ammount(bot, msg):
     if msg.user in db:
         bot.send_message(f"{msg.user} has {db.check_balance(msg.user)} tbucks")
     else:
-        bot.send_message(f"{msg.user} is not registered in the db, use the !create command to register.")
+        bot.send_message(f"{msg.user} is not registered in the db, use the !register command to register.")
 
 @register("register", False, "!register is used to register a user into the database to earn tbucks (stream money) usage:!register")
 async def command_register(bot, msg):
@@ -180,7 +180,7 @@ async def command_buy(bot,msg):
     if msg.args:
         weaponname = " ".join(msg.args)            
     else:
-        bot.send_message(f"wood sword, other thing")
+        bot.send_message(f"steel sword: 100tbucks, slime sword: 200tbucks, mace: 400tbucks, sword fish: 800tbucks, admin sword: 100000000000tbucks")
         return
     if msg.user not in db:
         bot.send_message(f"{msg.user} is not in the db use !register to join the db")
@@ -199,5 +199,36 @@ async def command_buy(bot,msg):
         bot.send_message(f"{msg.user} has bought {weaponname} for {db.get_weapon_cost(weaponname)} tbucks!")
     else:
         bot.send_message(f"{msg.user} needs {db.get_weapon_cost(weaponname) - int(db.check_balance(msg.user))} more tbucks.")
+
+@register("boss", False, "!boss command is used to display the boss hp or to attack the boss. usage: !boss, !boss fight")
+async def command_boss(bot,msg):
+    if msg.args:
+        fight = msg.args[0]
+    else:
+        bot.send_message(f"the boss has {db.get_boss_hp()} health.")
+        return
+
+    if fight != "fight":
+        bot.send_message(f"{fight} is not a valid command for !boss, usage: !boss, !boss fight")
+        return
+    
+    db.subtract_boss_health(db.get_user_weapon_damage(msg.user))
+    db.add_damage_dealt(msg.user, db.get_user_weapon_damage(msg.user))
+    bot.send_message(f"{msg.user} hit the boss for {db.get_user_weapon_damage(msg.user)} damage! The boss now has {db.get_boss_hp()} health.")
+
+    if db.get_boss_hp() <= 0:
+        bot.send_message(f"{msg.user} dealt the final blow against the boss!")
+        db.set_boss_health(100000)
+        user_list = db.get_all_users()
+        for (user,) in user_list:
+            if db.get_damage_dealt(user) > 0:
+                db.add_user_tbucks(user, db.get_damage_dealt(user))
+                bot.send_message(f"{user} dealt {db.get_damage_dealt(user)} damage and thus gained that many tbucks!")
+                db.reset_damage_dealt(user, 0)
+            
+    
+
+    
+
 
 
