@@ -4,7 +4,8 @@ import asyncio
 
 class Database:
     def __init__(self):
-        self.conn = sqlite3.connect(r'D:\Python\twitch projects\learn_programming\async_twitch_bot\users.db')
+        self.conn = sqlite3.connect(r'D:\Programming\Python\twitch projects\learn_programming\async_twitch_bot\users.db')
+        # self.conn = sqlite3.connect('users.db')
         cursor = self.conn.cursor()
 
         cursor.execute('''CREATE TABLE if not exists users
@@ -30,7 +31,19 @@ class Database:
         cursor.execute("UPDATE users SET tbucks = tbucks + 1")
         self.conn.commit()
         cursor.close()
-    
+
+    def add_user_tbucks(self, name, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET tbucks = tbucks + ? WHERE username =? ", (amount, name))
+        self.conn.commit()
+        cursor.close()
+
+    def subtract_tbucks(self, name, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET tbucks = tbucks - ? WHERE username = ?",(amount, name))
+        self.conn.commit()
+        cursor.close()
+        
     def check_balance(self, name):
         cursor = self.conn.cursor()
         return cursor.execute('select tbucks from users where username =?', (name,)).fetchone()[0]
