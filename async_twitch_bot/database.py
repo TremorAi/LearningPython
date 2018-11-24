@@ -9,16 +9,19 @@ class Database:
         cursor = self.conn.cursor()
 
         cursor.execute('''CREATE TABLE if not exists users
-        (username text, tbucks text)''')
+        (username text, tbucks text, weapon text, damage integer, damagedealt integer)''')
+        self.conn.commit()
+        cursor.execute('''CREATE TABLE if not exists weapons
+        (name text, damage integer, cost integer)''')
         self.conn.commit()
         cursor.execute('''CREATE TABLE if not exists commands
         (cmd text, results text)''')
         self.conn.commit()
         cursor.close()
     
-    def add_user(self, name, amt=0):
+    def add_user(self, name, amt=0, weapon="wood sword", damage=10, damagedealt=0):
         cursor = self.conn.cursor()
-        cursor.execute("INSERT INTO users  (username, tbucks) VALUES (?, ?)", (name, amt))
+        cursor.execute("INSERT INTO users  (username, tbucks, weapon, damage, damagedealt) VALUES (?, ?, ?, ?, ?)", (name, amt, weapon, damage, damagedealt))
         self.conn.commit()
         cursor.close()
 
@@ -38,15 +41,35 @@ class Database:
         self.conn.commit()
         cursor.close()
 
+    def add_user_weapon(self, name, weapon, dmg):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET weapon = ? WHERE username =? ", (weapon, name))
+        self.conn.commit()
+        cursor.execute("UPDATE users SET damage = ? WHERE username =? ", (dmg, name))
+        self.conn.commit()
+        cursor.close()
+
     def subtract_tbucks(self, name, amount):
         cursor = self.conn.cursor()
         cursor.execute("UPDATE users SET tbucks = tbucks - ? WHERE username = ?",(amount, name))
         self.conn.commit()
         cursor.close()
+    
+    def get_weapon_cost(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select cost from weapons where name =?', (name,)).fetchone()[0]
         
     def check_balance(self, name):
         cursor = self.conn.cursor()
         return cursor.execute('select tbucks from users where username =?', (name,)).fetchone()[0]
+
+    def check_user_weapon(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select weapon from users where username =?', (name,)).fetchone()[0]
+
+    def check_weapon(self, name):
+        cursor = self.conn.cursor()
+        return bool(cursor.execute('SELECT EXISTS(SELECT 1 FROM weapons WHERE name = ? LIMIT 1)', (name,)).fetchone()[0])
 
     def add_command(self, cmd, results):
         cursor = self.conn.cursor()
@@ -63,6 +86,10 @@ class Database:
     def get_command(self, cmd):
         cursor = self.conn.cursor()
         return cursor.execute('select results from commands where cmd =?', (cmd,)).fetchone()[0]
+
+    def get_weapon_damage(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select damage from weapons where name=?', (name,)).fetchone()[0]
 
     def command_exists(self, cmd):
         cursor = self.conn.cursor()

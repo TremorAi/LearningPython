@@ -90,6 +90,7 @@ async def command_ammount(bot, msg):
 async def command_register(bot, msg):
     if msg.user not in db:
         db.add_user(msg.user)
+        bot.send_message(f"{msg.user} has been added to the database")
     else:
         bot.send_message(f"{msg.user} already exists in the database.")
 
@@ -165,5 +166,38 @@ async def command_take(bot,msg):
         bot.send_message(f"{msg.user} has taken {amount} tbucks from {playername} (oh no!)")
     else:
         bot.send_message(f"{playername} does not exist in db have them use !register")
+
+@register("weapon", False, "!weapon is used to display the current weapon you own (default is wood sword) usage: !weapon")
+async def command_weapon(bot,msg):
+    if msg.user in db:
+        bot.send_message(f"{msg.user} has a {db.check_weapon(msg.user)} ")
+    else:
+        bot.send_message(f"{msg.user} is not registered in the db, use the !create command to register.")
+
     
+@register("buy", False, "")
+async def command_buy(bot,msg):
+    if msg.args:
+        weaponname = " ".join(msg.args)            
+    else:
+        bot.send_message(f"wood sword, other thing")
+        return
+    if msg.user not in db:
+        bot.send_message(f"{msg.user} is not in the db use !register to join the db")
+        return
+    if db.check_user_weapon(msg.user) == weaponname:
+        bot.send_message(f"{msg.user} already has {weaponname}")
+        return
+
+    if db.check_weapon(weaponname) != True:
+        bot.send_message(f"{weaponname} does not exist inside the db")
+        return
     
+    if int(db.check_balance(msg.user)) >= db.get_weapon_cost(weaponname):
+        db.subtract_tbucks(msg.user, db.get_weapon_cost(weaponname))
+        db.add_user_weapon(msg.user, weaponname, db.get_weapon_damage(weaponname))
+        bot.send_message(f"{msg.user} has bought {weaponname} for {db.get_weapon_cost(weaponname)} tbucks!")
+    else:
+        bot.send_message(f"{msg.user} needs {db.get_weapon_cost(weaponname) - int(db.check_balance(msg.user))} more tbucks.")
+
+
