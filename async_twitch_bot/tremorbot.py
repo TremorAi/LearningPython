@@ -2,9 +2,10 @@ __author__ = "Tremor"
 
 import asyncio
 import config
-from messages import Message
-from fun_commands import *
-from database import tbucks_update_loop
+from utility import *
+from commands import *
+from database import *
+from server import *
 
 
 class AsyncTwitchBot:
@@ -54,6 +55,7 @@ async def main():
     channel = "#tremorai"
     bot = AsyncTwitchBot(reader, writer, channel)
     asyncio.ensure_future(tbucks_update_loop())
+    asyncio.ensure_future(pyserver._socket_server_main())
     await bot.run()
     
     

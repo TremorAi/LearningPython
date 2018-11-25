@@ -4,7 +4,7 @@ import asyncio
 
 class Database:
     def __init__(self):
-        self.conn = sqlite3.connect(r'D:\Programming\Python\twitch projects\learn_programming\async_twitch_bot\users.db')
+        self.conn = sqlite3.connect(r'D:\Programming\Python\twitch projects\learn_programming\async_twitch_bot\database\users.db')
         # self.conn = sqlite3.connect('users.db')
         cursor = self.conn.cursor()
 

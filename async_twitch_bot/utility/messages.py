@@ -1,6 +1,6 @@
 __author__ = "tremor"
-from fun_commands import *
-from nlp import nlp
+from commands import *
+from database import nlp
 
 class Message:
     def __init__(self, message):

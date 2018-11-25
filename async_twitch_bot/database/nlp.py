@@ -1,6 +1,6 @@
 __author__ = "Tremor"
 import sqlite3
-from nlp_database import nlp_db
+from .nlp_database import nlp_db
 
 import random
 

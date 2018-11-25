@@ -1,8 +1,8 @@
 __author__ = "Tremor"
-from register import *
+from utility.register import commands, register
 import random
-from database import db
-from nlp import nlp
+from database import database, nlp
+from server import pyserver
 
 coin = ["heads", "tails"]
 eightball_list = [ "LUL","It is certain.","It is decidedly so.","Without a doubt.","Yes - definitely.","You may rely on it.","As I see it, yes.","Most likely.","Outlook good.","Yes.","Signs point to yes.","Reply hazy, try again.","Ask again later.","Better not tell you now.","Cannot predict now.","Concentrate and ask again.","Don't count on it.","My reply is no.","My sources say no.","Outlook not so good.","Very doubtful." ]
@@ -17,7 +17,6 @@ async def command_coin(bot, msg):
 async def command_setproject(bot, msg):
     if msg.user == "tremorai":
         global project
-        print(msg.args)
         project = ' '.join(msg.args)
         bot.send_message(f"The project is set to: {project}")
     else:
@@ -81,15 +80,15 @@ async def command_roll(bot, msg):
 #         return 
 @register("amount", False, "!amount is used to show your tbucks amount from the database. Usage: !tbucks")
 async def command_ammount(bot, msg):
-    if msg.user in db:
-        bot.send_message(f"{msg.user} has {db.check_balance(msg.user)} tbucks")
+    if msg.user in database.db:
+        bot.send_message(f"{msg.user} has {database.db.check_balance(msg.user)} tbucks")
     else:
-        bot.send_message(f"{msg.user} is not registered in the db, use the !register command to register.")
+        bot.send_message(f"{msg.user} is not registered in the database.db, use the !register command to register.")
 
 @register("register", False, "!register is used to register a user into the database to earn tbucks (stream money) usage:!register")
 async def command_register(bot, msg):
-    if msg.user not in db:
-        db.add_user(msg.user)
+    if msg.user not in database.db:
+        database.db.add_user(msg.user)
         bot.send_message(f"{msg.user} has been added to the database")
     else:
         bot.send_message(f"{msg.user} already exists in the database.")
@@ -99,16 +98,16 @@ async def command_addcmd(bot, msg):
     if not msg.args:
         bot.send_message("No command input: usage !addcmd args")
         return
-    if not db.command_exists(msg.args[0]) and not msg.args[0] in commands:
-        db.add_command("".join(msg.args[0]), " ".join(msg.args[1:]))
+    if not database.db.command_exists(msg.args[0]) and not msg.args[0] in commands:
+        database.db.add_command("".join(msg.args[0]), " ".join(msg.args[1:]))
         bot.send_message(f"{msg.args[0]} was added!")
     else:
         bot.send_message(f"{msg.args[0]} already exists! try !{msg.args[0]}")
 
 @register("delcmd", False, "!delcmd is used to delte a user added command to the database usage: !delcmd commandname")
 async def command_delcmd(bot, msg):
-    if db.command_exists(msg.args[0]):
-        db.del_command(msg.args[0])
+    if database.db.command_exists(msg.args[0]):
+        database.db.del_command(msg.args[0])
         bot.send_message(f"{msg.args[0]} has been deleted!")
     else:
         bot.send_message(f"{msg.args[0]} does not exist try adding it using !addcmd args")
@@ -127,16 +126,16 @@ async def command_bet(bot,msg):
     amount = msg.args[0]
     pcoin = msg.args[1]
 
-    if msg.user not in db:    
+    if msg.user not in database.db:    
         bot.send_message(f"{msg.user} is not inside the database use !register to join.")
         return
 
     if random.choice(coin) == pcoin:
-        db.add_user_tbucks(msg.user, amount)
-        bot.send_message(f"{msg.user} won and now has {db.check_balance(msg.user)} tbucks")
+        database.db.add_user_tbucks(msg.user, amount)
+        bot.send_message(f"{msg.user} won and now has {database.db.check_balance(msg.user)} tbucks")
     else:
-        db.subtract_tbucks(msg.user, amount)
-        bot.send_message(f"{msg.user} lost and now has {db.check_balance(msg.user)} tbucks")
+        database.db.subtract_tbucks(msg.user, amount)
+        bot.send_message(f"{msg.user} lost and now has {database.db.check_balance(msg.user)} tbucks")
 
 @register("give", True, "This is a admin command to give players tbucks. Usage: !give playername amount")
 async def command_give(bot,msg):
@@ -147,11 +146,11 @@ async def command_give(bot,msg):
     playername = msg.args[0]
     amount = msg.args[1]
 
-    if playername in db:
-        db.add_user_tbucks(playername, amount)
+    if playername in database.db:
+        database.db.add_user_tbucks(playername, amount)
         bot.send_message(f"{msg.user} has given {playername} {amount} tbucks! (what a scandal..)")
     else:
-        bot.send_message(f"{playername} does not exist in db have them use !register")
+        bot.send_message(f"{playername} does not exist in database.db have them use !register")
 
 @register("take", False, "This is a admin only command to take tbucks. Usage: !take playername amount")   
 async def command_take(bot,msg):
@@ -161,18 +160,18 @@ async def command_take(bot,msg):
 
     playername = msg.args[0]
     amount = msg.args[1]
-    if playername in db:
-        db.subtract_tbucks(playername, amount)
+    if playername in database.db:
+        database.db.subtract_tbucks(playername, amount)
         bot.send_message(f"{msg.user} has taken {amount} tbucks from {playername} (oh no!)")
     else:
-        bot.send_message(f"{playername} does not exist in db have them use !register")
+        bot.send_message(f"{playername} does not exist in database.db have them use !register")
 
 @register("weapon", False, "!weapon is used to display the current weapon you own (default is wood sword) usage: !weapon")
 async def command_weapon(bot,msg):
-    if msg.user in db:
-        bot.send_message(f"{msg.user} has a {db.check_weapon(msg.user)} ")
+    if msg.user in database.db:
+        bot.send_message(f"{msg.user} has a {database.db.check_weapon(msg.user)} ")
     else:
-        bot.send_message(f"{msg.user} is not registered in the db, use the !create command to register.")
+        bot.send_message(f"{msg.user} is not registered in the database.db, use the !create command to register.")
 
     
 @register("buy", False, "")
@@ -182,49 +181,57 @@ async def command_buy(bot,msg):
     else:
         bot.send_message(f"steel sword: 100tbucks, slime sword: 200tbucks, mace: 400tbucks, sword fish: 800tbucks, admin sword: 100000000000tbucks")
         return
-    if msg.user not in db:
-        bot.send_message(f"{msg.user} is not in the db use !register to join the db")
+    if msg.user not in database.db:
+        bot.send_message(f"{msg.user} is not in the database.db use !register to join the database.db")
         return
-    if db.check_user_weapon(msg.user) == weaponname:
+    if database.db.check_user_weapon(msg.user) == weaponname:
         bot.send_message(f"{msg.user} already has {weaponname}")
         return
 
-    if db.check_weapon(weaponname) != True:
-        bot.send_message(f"{weaponname} does not exist inside the db")
+    if database.db.check_weapon(weaponname) != True:
+        bot.send_message(f"{weaponname} does not exist inside the database.db")
         return
     
-    if int(db.check_balance(msg.user)) >= db.get_weapon_cost(weaponname):
-        db.subtract_tbucks(msg.user, db.get_weapon_cost(weaponname))
-        db.add_user_weapon(msg.user, weaponname, db.get_weapon_damage(weaponname))
-        bot.send_message(f"{msg.user} has bought {weaponname} for {db.get_weapon_cost(weaponname)} tbucks!")
+    if int(database.db.check_balance(msg.user)) >= database.db.get_weapon_cost(weaponname):
+        database.db.subtract_tbucks(msg.user, database.db.get_weapon_cost(weaponname))
+        database.db.add_user_weapon(msg.user, weaponname, database.db.get_weapon_damage(weaponname))
+        bot.send_message(f"{msg.user} has bought {weaponname} for {database.db.get_weapon_cost(weaponname)} tbucks!")
     else:
-        bot.send_message(f"{msg.user} needs {db.get_weapon_cost(weaponname) - int(db.check_balance(msg.user))} more tbucks.")
+        bot.send_message(f"{msg.user} needs {database.db.get_weapon_cost(weaponname) - int(database.db.check_balance(msg.user))} more tbucks.")
 
 @register("boss", False, "!boss command is used to display the boss hp or to attack the boss. usage: !boss, !boss fight")
 async def command_boss(bot,msg):
     if msg.args:
         fight = msg.args[0]
     else:
-        bot.send_message(f"the boss has {db.get_boss_hp()} health.")
+        bot.send_message(f"the boss has {database.db.get_boss_hp()} health.")
         return
 
     if fight != "fight":
         bot.send_message(f"{fight} is not a valid command for !boss, usage: !boss, !boss fight")
         return
     
-    db.subtract_boss_health(db.get_user_weapon_damage(msg.user))
-    db.add_damage_dealt(msg.user, db.get_user_weapon_damage(msg.user))
-    bot.send_message(f"{msg.user} hit the boss for {db.get_user_weapon_damage(msg.user)} damage! The boss now has {db.get_boss_hp()} health.")
+    database.db.subtract_boss_health(database.db.get_user_weapon_damage(msg.user))
+    database.db.add_damage_dealt(msg.user, database.db.get_user_weapon_damage(msg.user))
+    bot.send_message(f"{msg.user} hit the boss for {database.db.get_user_weapon_damage(msg.user)} damage! The boss now has {database.db.get_boss_hp()} health.")
 
-    if db.get_boss_hp() <= 0:
+    if database.db.get_boss_hp() <= 0:
+        await bot.send_message("defeated")
         bot.send_message(f"{msg.user} dealt the final blow against the boss!")
-        db.set_boss_health(100000)
-        user_list = db.get_all_users()
+        database.db.set_boss_health(100000)
+        user_list = database.db.get_all_users()
         for (user,) in user_list:
-            if db.get_damage_dealt(user) > 0:
-                db.add_user_tbucks(user, db.get_damage_dealt(user))
-                bot.send_message(f"{user} dealt {db.get_damage_dealt(user)} damage and thus gained that many tbucks!")
-                db.reset_damage_dealt(user, 0)
+            if database.db.get_damage_dealt(user) > 0:
+                database.db.add_user_tbucks(user, database.db.get_damage_dealt(user))
+                bot.send_message(f"{user} dealt {database.db.get_damage_dealt(user)} damage and thus gained that many tbucks!")
+                database.db.reset_damage_dealt(user, 0)
+
+@register("overlay", False, "")
+async def command_overlay(bot,msg):
+    if msg.args:
+        await bot.send_message(msg.args[0])
+    else:
+        await bot.send_message("test")
             
     
 

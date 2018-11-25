@@ -3,7 +3,7 @@ import sqlite3
 
 class NlpDatabase:
     def __init__(self):
-        self.conn = sqlite3.connect(r'D:\Programming\Python\twitch projects\learn_programming\async_twitch_bot\nlp.db')
+        self.conn = sqlite3.connect(r'D:\Programming\Python\twitch projects\learn_programming\async_twitch_bot\database\nlp.db')
         # self.conn = sqlite3.connect('nlp.db')
         cursor = self.conn.cursor()
         cursor.execute('''CREATE TABLE if not exists noun
