@@ -123,11 +123,31 @@ async def command_welcome(bot,msg):
 
 @register("gamble", False, "!gamble command is for betting mooney. Usage: !gamble amount heads/tails")
 async def command_bet(bot,msg):
+    
+
+    if not msg.args:
+        bot.send_message(f"@{msg.user} the usage for this command is !gamble amount heads/tails")
+        return
+    elif msg.args[-1].lower() not in ('heads', 'tails'):
+        bot.send_message(f"@{msg.user} the usage for this command is !gamble amount heads/tails")
+        return
+    
     amount = msg.args[0]
     pcoin = msg.args[1]
 
+    if  not amount.isdigit():
+        bot.send_message(f"@{msg.user} {amount} is not a valid amount")
+        return
+
     if msg.user not in database.db:    
         bot.send_message(f"{msg.user} is not inside the database use !register to join.")
+        return
+
+    if int(amount) > int(database.db.check_balance(msg.user)):
+        bot.send_message(f"{msg.user} does not have {amount} tbucks to gamble.")
+        return
+    elif int(amount) <= 0:
+        bot.send_message(f"{msg.user} IS A HAXOR STOP")
         return
 
     if random.choice(coin) == pcoin:
@@ -169,7 +189,7 @@ async def command_take(bot,msg):
 @register("weapon", False, "!weapon is used to display the current weapon you own (default is wood sword) usage: !weapon")
 async def command_weapon(bot,msg):
     if msg.user in database.db:
-        bot.send_message(f"{msg.user} has a {database.db.check_weapon(msg.user)} ")
+        bot.send_message(f"{msg.user} has a {database.db.check_user_weapon(msg.user)} ")
     else:
         bot.send_message(f"{msg.user} is not registered in the database.db, use the !create command to register.")
 
@@ -177,27 +197,85 @@ async def command_weapon(bot,msg):
 @register("buy", False, "")
 async def command_buy(bot,msg):
     if msg.args:
-        weaponname = " ".join(msg.args)            
+        buyargs = " ".join(msg.args[1:])            
     else:
-        bot.send_message(f"steel sword: 100tbucks, slime sword: 200tbucks, mace: 400tbucks, sword fish: 800tbucks, admin sword: 100000000000tbucks")
+        bot.send_message(f"Command usage: !buy weapon / !buy food")
         return
+
     if msg.user not in database.db:
         bot.send_message(f"{msg.user} is not in the database.db use !register to join the database.db")
         return
-    if database.db.check_user_weapon(msg.user) == weaponname:
-        bot.send_message(f"{msg.user} already has {weaponname}")
-        return
+    if msg.args[0] == "weapon":
+        print(buyargs)
+        if buyargs == "":
+            bot.send_message(f"The weapons are: steel sword (15dmg) 100tbucks, slime sword (20dmg) 200tbucks, mace (25dmg) 400tbucks, sword fish (30dmg) 800tbucks")
+            return
+        if database.db.check_user_weapon(msg.user) == buyargs:
+            bot.send_message(f"{msg.user} already has {buyargs}")
+            return
 
-    if database.db.check_weapon(weaponname) != True:
-        bot.send_message(f"{weaponname} does not exist inside the database.db")
+        if database.db.check_weapon(buyargs) != True:
+            bot.send_message(f"{buyargs} does not exist inside the database.db")
+            return
+        
+        if int(database.db.check_balance(msg.user)) >= database.db.get_weapon_cost(buyargs):
+            database.db.subtract_tbucks(msg.user, database.db.get_weapon_cost(buyargs))
+            database.db.add_user_weapon(msg.user, buyargs, database.db.get_weapon_damage(buyargs))
+            bot.send_message(f"{msg.user} has bought {buyargs} for {database.db.get_weapon_cost(buyargs)} tbucks!")
+        else:
+            bot.send_message(f"{msg.user} needs {database.db.get_weapon_cost(buyargs) - int(database.db.check_balance(msg.user))} more tbucks.")
+
+    elif msg.args[0] == "food":
+        print(buyargs)
+        if buyargs == "":
+            bot.send_message(f"The food is: berry (+5 health) 100tbucks ")
+            return
+
+        if  not database.db.check_food(buyargs):
+            bot.send_message(f"{buyargs} does not exist inside the database.db")
+            return
+        
+        if int(database.db.check_balance(msg.user)) >= database.db.get_food_cost(buyargs):
+            database.db.subtract_tbucks(msg.user, database.db.get_food_cost(buyargs))
+            database.db.add_player_health(msg.user, database.db.get_food_hp_amount(buyargs))
+            bot.send_message(f"{msg.user} has bought {buyargs} for {database.db.get_food_cost(buyargs)} tbucks! @{msg.user} now has {database.db.get_player_hp(msg.user)} health.")
+        else:
+            bot.send_message(f"{msg.user} needs {database.db.get_food_cost(buyargs) - int(database.db.check_balance(msg.user))} more tbucks.")
+
+@register("gift", False, "!gift is a command used to gift your tbucks to another player. Usage: !gift name amount")
+async def command_gift(bot, msg):
+    if not msg.args:
+        bot.send_message(f"@{msg.user} invalid command usage. Usage: !gift name amount")
+        return
+    username = msg.args[0]
+
+    if msg.user not in database.db:
+        bot.send_message(f"@{msg.user} is not registered in the database use !register to register.")
+        return
+    elif username.lower() not in database.db:
+        bot.send_message(f"@{username} is not registered in the database use !register to register.")
         return
     
-    if int(database.db.check_balance(msg.user)) >= database.db.get_weapon_cost(weaponname):
-        database.db.subtract_tbucks(msg.user, database.db.get_weapon_cost(weaponname))
-        database.db.add_user_weapon(msg.user, weaponname, database.db.get_weapon_damage(weaponname))
-        bot.send_message(f"{msg.user} has bought {weaponname} for {database.db.get_weapon_cost(weaponname)} tbucks!")
+    if msg.args[1]:
+        amount = msg.args[1]
+        if  not amount.isdigit():
+            bot.send_message(f"@{msg.user} {amount} is not a valid amount")
+            return
     else:
-        bot.send_message(f"{msg.user} needs {database.db.get_weapon_cost(weaponname) - int(database.db.check_balance(msg.user))} more tbucks.")
+        bot.send_message(f"@{msg.user} invalid command usage. Usage: !gift name amount")
+        return
+
+    if int(amount) > int(database.db.check_balance(msg.user)):
+        bot.send_message(f"{msg.user} does not have {amount} tbucks to gift.")
+        return
+    elif int(amount) <= 0:
+        bot.send_message(f"{msg.user} IS A HAXOR STOP")
+        return
+    elif int(database.db.check_balance(msg.user)) >= int(amount):
+        database.db.add_user_tbucks(username, amount)
+        database.db.subtract_tbucks(msg.user, amount)
+        bot.send_message(f"@{msg.user} has gifted @{username} {amount} tbucks!")
+        
 
 @register("boss", False, "!boss command is used to display the boss hp or to attack the boss. usage: !boss, !boss fight")
 async def command_boss(bot,msg):
@@ -213,26 +291,56 @@ async def command_boss(bot,msg):
     
     database.db.subtract_boss_health(database.db.get_user_weapon_damage(msg.user))
     database.db.add_damage_dealt(msg.user, database.db.get_user_weapon_damage(msg.user))
-    bot.send_message(f"{msg.user} hit the boss for {database.db.get_user_weapon_damage(msg.user)} damage! The boss now has {database.db.get_boss_hp()} health.")
+    database.db.subtract_player_health(msg.user, database.db.get_boss_damage("jim"))
+    bot.send_message(f'{msg.user} hit the boss for {database.db.get_damage_dealt(msg.user)} damage! And the player took {database.db.get_boss_damage("jim")} damage and now has {database.db.get_player_hp(msg.user)} health. The boss now has {database.db.get_boss_hp() if database.db.get_boss_hp() > 0 else "0"} health.')
 
     if database.db.get_boss_hp() <= 0:
-        await bot.send_message("defeated")
+        await pyserver.send_message("defeated")
         bot.send_message(f"{msg.user} dealt the final blow against the boss!")
         database.db.set_boss_health(100000)
         user_list = database.db.get_all_users()
         for (user,) in user_list:
+            if database.db.get_player_hp(user) < database.db.get_player_default_hp(user):
+                database.db.set_player_health(user, database.db.get_player_default_hp(user))
+               
             if database.db.get_damage_dealt(user) > 0:
                 database.db.add_user_tbucks(user, database.db.get_damage_dealt(user))
                 bot.send_message(f"{user} dealt {database.db.get_damage_dealt(user)} damage and thus gained that many tbucks!")
                 database.db.reset_damage_dealt(user, 0)
 
+@register("health", False, "")
+async def command_health(bot,msg):
+    if msg.user in database.db:
+        bot.send_message(f"{msg.user} has {database.db.get_player_hp(msg.user)} health.")
+    else:
+        bot.send_message(f"{msg.user} not in database do !register to join the database.")
+
+
 @register("overlay", False, "")
 async def command_overlay(bot,msg):
     if msg.args:
-        await bot.send_message(msg.args[0])
+        await pyserver.send_message(msg.args[0])
     else:
-        await bot.send_message("test")
-            
+        await pyserver.send_message("test")
+
+
+# @register("test", False, "")
+# async def command_test(bot,msg):
+#     bot.send_whisper(msg.user, "test")
+
+@register("reset", True, "!reset is a admin only command to reset everyones tbucks. usage: !reset amount")
+async def command_reset(bot,msg):
+    if msg.user not in admin_list:
+        bot.send_message(f"{msg.user} does not have the permissions to use this command. (good try theif)")
+        return
+    if not msg.args:
+        bot.send_message(f"{msg.user} command usage: !reset amount")
+        return
+
+
+    database.db.reset_all_tbucks(msg.args[0])
+    bot.send_message(f"All users tbucks have been updated too {msg.args[0]}")
+        
     
 
     

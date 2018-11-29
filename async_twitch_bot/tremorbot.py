@@ -20,7 +20,7 @@ class AsyncTwitchBot:
     def send_message(self, message):
         # self.writer.write(f"PRIVMSG {self.channel} {message}\r\n".encode())
         self.send_raw(f"PRIVMSG {self.channel} :{message}")
-
+        
     def send_auth(self, username, password, channel):
         self.send_raw(f"PASS {password}")
         self.send_raw(f"NICK {username}")

@@ -63,6 +63,13 @@ class Database:
         cursor.execute("UPDATE users SET damagedealt = ? WHERE username =? ", (dmg, name))
         self.conn.commit()
         cursor.close()
+    
+    def reset_all_tbucks(self, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET tbucks = ?", (amount,))
+        self.conn.commit()
+        cursor.close()
+
 
     def subtract_tbucks(self, name, amount):
         cursor = self.conn.cursor()
@@ -121,10 +128,18 @@ class Database:
     def get_boss_hp(self):
         cursor = self.conn.cursor()
         return cursor.execute('select health from boss where name=?', ("jim",)).fetchone()[0]
+
+    def get_player_hp(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select health from users where username=?', (name,)).fetchone()[0]
     
     def set_boss_health(self, amount):
         cursor = self.conn.cursor()
         cursor.execute("UPDATE boss SET health = ? WHERE name = ?",(amount, "jim"))
+
+    def set_player_health(self, name, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET health = ? WHERE username = ?",(amount, name))
     
     def subtract_boss_health(self, amount):
         cursor = self.conn.cursor()
@@ -137,6 +152,47 @@ class Database:
     def get_damage_dealt(self, name):
         cursor = self.conn.cursor()
         return cursor.execute('select damagedealt from users where username =?', (name,)).fetchone()[0]
+
+    def get_boss_damage(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select damage from boss where name =?', (name,)).fetchone()[0]
+
+    def subtract_player_health(self, name, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET health = health - ? WHERE username = ?",(amount, name))
+
+    def get_player_default_hp(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select default_hp from users where username =?', (name,)).fetchone()[0]
+
+    def add_player_default_hp(self, name, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET deafult_hp = default_hp + ? WHERE username= ?",(amount, name))
+
+    def add_player_health(self, name, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET health = health + ? WHERE username= ?",(amount, name))
+
+    def get_player_exp(self, name):
+        cursor = self.conn.cursor()
+        return cursor.execute('select experience from users where username =?', (name,)).fetchone()[0]
+
+    def add_player_exp(self, name, amount):
+        cursor = self.conn.cursor()
+        cursor.execute("UPDATE users SET experience = experience + ? WHERE username= ?",(amount, name))
+
+    def check_food(self, name):
+            cursor = self.conn.cursor()
+            return bool(cursor.execute('SELECT EXISTS(SELECT 1 FROM food WHERE name = ? LIMIT 1)', (name,)).fetchone()[0])
+
+    def get_food_cost(self, name):
+            cursor = self.conn.cursor()
+            return cursor.execute('select cost from food where name =?', (name,)).fetchone()[0]
+
+    def get_food_hp_amount(self, name):
+            cursor = self.conn.cursor()
+            return cursor.execute('select health from food where name =?', (name,)).fetchone()[0]
+
 
 
 async def tbucks_update_loop():
